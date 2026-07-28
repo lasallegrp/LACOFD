@@ -3,6 +3,7 @@
 # =====================================================
 
 epigenerator_chds_breast_cancer_3_Gen/
+pipeline_runs/
 analysis/
 config/
 data/
