@@ -6,7 +6,6 @@ epigenerator_chds_breast_cancer_3_Gen/
 analysis/
 config/
 data/
-data/SmallSequencingBatchForQC
 docs/
 results/old_analysis_03312026
 reproducibility/

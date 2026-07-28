@@ -1,0 +1,397 @@
+.
+├── analysis
+│   ├── config
+│   │   ├── config.yaml
+│   │   ├── samples.tsv
+│   │   ├── schema
+│   │   │   └── config.schema.yaml
+│   │   └── units.tsv
+│   ├── logs
+│   ├── notebooks
+│   ├── README.md
+│   ├── renv.lock
+│   └── SmallSequencingBatchForQC
+│       ├── LA060_S6_L003_1_val_1_bismark_bt2_pe_est_lib_complex_metrics.txt
+│       ├── LA081_S7_L003_1_val_1_bismark_bt2_pe_est_lib_complex_metrics.txt
+│       ├── LA083_S8_L003_1_val_1_bismark_bt2_pe_est_lib_complex_metrics.txt
+│       └── LA089_S9_L003_1_val_1_bismark_bt2_pe_est_lib_complex_metrics.txt
+├── data
+│   ├── metadata
+│   │   ├── codebook.md
+│   │   ├── ConsolidatedPlasmaSampleManifest_20251001_LW.xlsx
+│   │   ├── data_dictionary.tsv
+│   │   ├── Data Pull L. Williams_10.27.2025.csv
+│   │   ├── DD L. Williams_10.22.2025.xlsx
+│   │   ├── provenance
+│   │   │   └── README.md
+│   │   ├── README.md
+│   │   ├── UC Davis Plasma Sample Manifest 9-15-2025.xlsx
+│   │   ├── UC Davis Sample List Confirmation Request.xlsx
+│   │   ├── Variable List L. Williams_10.22.2025.csv
+│   │   └── VOC_PAH_results_LaSalle.xlsx
+│   └── SmallSequencingBatchForQC
+│       ├── 00_slurm
+│       │   ├── config.yaml
+│       │   ├── DMRichR_SLURM_template.sh
+│       │   └── slurm-status.py
+│       ├── 00_software
+│       │   ├── environment.yml
+│       │   └── fastq_screen.conf
+│       ├── 00_std_err_logs
+│       │   ├── 02_trimmed_LA060_S6_L003.log
+│       │   ├── 02_trimmed_LA081_S7_L003.log
+│       │   ├── 02_trimmed_LA083_S8_L003.log
+│       │   ├── 02_trimmed_LA089_S9_L003.log
+│       │   ├── 03_screened_LA060_S6_L003.log
+│       │   ├── 03_screened_LA081_S7_L003.log
+│       │   ├── 03_screened_LA083_S8_L003.log
+│       │   ├── 03_screened_LA089_S9_L003.log
+│       │   ├── 04_aligned_LA060_S6_L003.txt
+│       │   ├── 04_aligned_LA081_S7_L003.txt
+│       │   ├── 04_aligned_LA083_S8_L003.txt
+│       │   ├── 04_aligned_LA089_S9_L003.txt
+│       │   ├── 04_merged_aligned_LA060.txt
+│       │   ├── 04_merged_aligned_LA081.txt
+│       │   ├── 04_merged_aligned_LA083.txt
+│       │   ├── 04_merged_aligned_LA089.txt
+│       │   ├── 04_name_sorted_LA060.txt
+│       │   ├── 04_name_sorted_LA081.txt
+│       │   ├── 04_name_sorted_LA083.txt
+│       │   ├── 04_name_sorted_LA089.txt
+│       │   ├── 05_deduplicated_LA060.txt
+│       │   ├── 05_deduplicated_LA081.txt
+│       │   ├── 05_deduplicated_LA083.txt
+│       │   ├── 05_deduplicated_LA089.txt
+│       │   ├── 06_methylation_LA060.txt
+│       │   ├── 06_methylation_LA081.txt
+│       │   ├── 06_methylation_LA083.txt
+│       │   ├── 06_methylation_LA089.txt
+│       │   ├── 08_cytosine_reports_LA060.txt
+│       │   ├── 08_cytosine_reports_LA081.txt
+│       │   ├── 08_cytosine_reports_LA083.txt
+│       │   ├── 08_cytosine_reports_LA089.txt
+│       │   └── 09_multiqc.txt
+│       ├── 00_time_logs
+│       │   ├── 02_trimmed_LA060_S6_L003.txt
+│       │   ├── 02_trimmed_LA081_S7_L003.txt
+│       │   ├── 02_trimmed_LA083_S8_L003.txt
+│       │   ├── 02_trimmed_LA089_S9_L003.txt
+│       │   ├── 03_screened_LA060_S6_L003.txt
+│       │   ├── 03_screened_LA081_S7_L003.txt
+│       │   ├── 03_screened_LA083_S8_L003.txt
+│       │   ├── 03_screened_LA089_S9_L003.txt
+│       │   ├── 04_aligned_LA060_S6_L003.txt
+│       │   ├── 04_aligned_LA081_S7_L003.txt
+│       │   ├── 04_aligned_LA083_S8_L003.txt
+│       │   ├── 04_aligned_LA089_S9_L003.txt
+│       │   ├── 04_merged_aligned_LA060.txt
+│       │   ├── 04_merged_aligned_LA081.txt
+│       │   ├── 04_merged_aligned_LA083.txt
+│       │   ├── 04_merged_aligned_LA089.txt
+│       │   ├── 04_name_sorted_LA060.txt
+│       │   ├── 04_name_sorted_LA081.txt
+│       │   ├── 04_name_sorted_LA083.txt
+│       │   ├── 04_name_sorted_LA089.txt
+│       │   ├── 05_deduplicated_LA060.txt
+│       │   ├── 05_deduplicated_LA081.txt
+│       │   ├── 05_deduplicated_LA083.txt
+│       │   ├── 05_deduplicated_LA089.txt
+│       │   ├── 06_methylation_LA060.txt
+│       │   ├── 06_methylation_LA081.txt
+│       │   ├── 06_methylation_LA083.txt
+│       │   ├── 06_methylation_LA089.txt
+│       │   ├── 08_cytosine_reports_LA060.txt
+│       │   ├── 08_cytosine_reports_LA081.txt
+│       │   ├── 08_cytosine_reports_LA083.txt
+│       │   ├── 08_cytosine_reports_LA089.txt
+│       │   └── 09_multiqc.txt
+│       ├── 01_FASTQ_Me2.py
+│       ├── 01_genomes
+│       │   ├── hg19 -> /quobyte/lasallegrp/genomes/hg19
+│       │   ├── hg38 -> /quobyte/lasallegrp/genomes/hg38
+│       │   ├── Lambda -> /quobyte/lasallegrp/genomes/Lambda
+│       │   ├── mm10 -> /quobyte/lasallegrp/genomes/mm10
+│       │   ├── PhiX -> /quobyte/lasallegrp/genomes/PhiX
+│       │   ├── rheMac10 -> /quobyte/lasallegrp/genomes/rheMac10
+│       │   └── rn6 -> /quobyte/lasallegrp/genomes/rn6
+│       ├── 01_raw_sequences
+│       │   ├── LA060_S6_L003_1.fq.gz -> /quobyte/lasallegrp/data/2026_LACOFD_PilotWGBSForQC_Logan/260509_DTSA1256_NovaX25B/JLLW_Nova1479P_Williams/LA060_S6_L003_R1_001.fastq.gz
+│       │   ├── LA060_S6_L003_2.fq.gz -> /quobyte/lasallegrp/data/2026_LACOFD_PilotWGBSForQC_Logan/260509_DTSA1256_NovaX25B/JLLW_Nova1479P_Williams/LA060_S6_L003_R2_001.fastq.gz
+│       │   ├── LA081_S7_L003_1.fq.gz -> /quobyte/lasallegrp/data/2026_LACOFD_PilotWGBSForQC_Logan/260509_DTSA1256_NovaX25B/JLLW_Nova1479P_Williams/LA081_S7_L003_R1_001.fastq.gz
+│       │   ├── LA081_S7_L003_2.fq.gz -> /quobyte/lasallegrp/data/2026_LACOFD_PilotWGBSForQC_Logan/260509_DTSA1256_NovaX25B/JLLW_Nova1479P_Williams/LA081_S7_L003_R2_001.fastq.gz
+│       │   ├── LA083_S8_L003_1.fq.gz -> /quobyte/lasallegrp/data/2026_LACOFD_PilotWGBSForQC_Logan/260509_DTSA1256_NovaX25B/JLLW_Nova1479P_Williams/LA083_S8_L003_R1_001.fastq.gz
+│       │   ├── LA083_S8_L003_2.fq.gz -> /quobyte/lasallegrp/data/2026_LACOFD_PilotWGBSForQC_Logan/260509_DTSA1256_NovaX25B/JLLW_Nova1479P_Williams/LA083_S8_L003_R2_001.fastq.gz
+│       │   ├── LA089_S9_L003_1.fq.gz -> /quobyte/lasallegrp/data/2026_LACOFD_PilotWGBSForQC_Logan/260509_DTSA1256_NovaX25B/JLLW_Nova1479P_Williams/LA089_S9_L003_R1_001.fastq.gz
+│       │   └── LA089_S9_L003_2.fq.gz -> /quobyte/lasallegrp/data/2026_LACOFD_PilotWGBSForQC_Logan/260509_DTSA1256_NovaX25B/JLLW_Nova1479P_Williams/LA089_S9_L003_R2_001.fastq.gz
+│       ├── 02_CpG_Me2_PE
+│       ├── 02_CpG_Me2_SE
+│       ├── 02_trimmed
+│       │   ├── LA060_S6_L003_1.fq.gz_trimming_report.txt
+│       │   ├── LA060_S6_L003_1_val_1_fastqc.html
+│       │   ├── LA060_S6_L003_1_val_1_fastqc.zip
+│       │   ├── LA060_S6_L003_1_val_1.fq.gz
+│       │   ├── LA060_S6_L003_2.fq.gz_trimming_report.txt
+│       │   ├── LA060_S6_L003_2_val_2_fastqc.html
+│       │   ├── LA060_S6_L003_2_val_2_fastqc.zip
+│       │   ├── LA060_S6_L003_2_val_2.fq.gz
+│       │   ├── LA081_S7_L003_1.fq.gz_trimming_report.txt
+│       │   ├── LA081_S7_L003_1_val_1_fastqc.html
+│       │   ├── LA081_S7_L003_1_val_1_fastqc.zip
+│       │   ├── LA081_S7_L003_1_val_1.fq.gz
+│       │   ├── LA081_S7_L003_2.fq.gz_trimming_report.txt
+│       │   ├── LA081_S7_L003_2_val_2_fastqc.html
+│       │   ├── LA081_S7_L003_2_val_2_fastqc.zip
+│       │   ├── LA081_S7_L003_2_val_2.fq.gz
+│       │   ├── LA083_S8_L003_1.fq.gz_trimming_report.txt
+│       │   ├── LA083_S8_L003_1_val_1_fastqc.html
+│       │   ├── LA083_S8_L003_1_val_1_fastqc.zip
+│       │   ├── LA083_S8_L003_1_val_1.fq.gz
+│       │   ├── LA083_S8_L003_2.fq.gz_trimming_report.txt
+│       │   ├── LA083_S8_L003_2_val_2_fastqc.html
+│       │   ├── LA083_S8_L003_2_val_2_fastqc.zip
+│       │   ├── LA083_S8_L003_2_val_2.fq.gz
+│       │   ├── LA089_S9_L003_1.fq.gz_trimming_report.txt
+│       │   ├── LA089_S9_L003_1_val_1_fastqc.html
+│       │   ├── LA089_S9_L003_1_val_1_fastqc.zip
+│       │   ├── LA089_S9_L003_1_val_1.fq.gz
+│       │   ├── LA089_S9_L003_2.fq.gz_trimming_report.txt
+│       │   ├── LA089_S9_L003_2_val_2_fastqc.html
+│       │   ├── LA089_S9_L003_2_val_2_fastqc.zip
+│       │   └── LA089_S9_L003_2_val_2.fq.gz
+│       ├── 03_screened
+│       │   ├── LA060_S6_L003_1_val_1_screen.bisulfite_orientation.png
+│       │   ├── LA060_S6_L003_1_val_1_screen.html
+│       │   ├── LA060_S6_L003_1_val_1_screen.png
+│       │   ├── LA060_S6_L003_1_val_1_screen.txt
+│       │   ├── LA060_S6_L003_2_val_2_screen.bisulfite_orientation.png
+│       │   ├── LA060_S6_L003_2_val_2_screen.html
+│       │   ├── LA060_S6_L003_2_val_2_screen.png
+│       │   ├── LA060_S6_L003_2_val_2_screen.txt
+│       │   ├── LA081_S7_L003_1_val_1_screen.bisulfite_orientation.png
+│       │   ├── LA081_S7_L003_1_val_1_screen.html
+│       │   ├── LA081_S7_L003_1_val_1_screen.png
+│       │   ├── LA081_S7_L003_1_val_1_screen.txt
+│       │   ├── LA081_S7_L003_2_val_2_screen.bisulfite_orientation.png
+│       │   ├── LA081_S7_L003_2_val_2_screen.html
+│       │   ├── LA081_S7_L003_2_val_2_screen.png
+│       │   ├── LA081_S7_L003_2_val_2_screen.txt
+│       │   ├── LA083_S8_L003_1_val_1_screen.bisulfite_orientation.png
+│       │   ├── LA083_S8_L003_1_val_1_screen.html
+│       │   ├── LA083_S8_L003_1_val_1_screen.png
+│       │   ├── LA083_S8_L003_1_val_1_screen.txt
+│       │   ├── LA083_S8_L003_2_val_2_screen.bisulfite_orientation.png
+│       │   ├── LA083_S8_L003_2_val_2_screen.html
+│       │   ├── LA083_S8_L003_2_val_2_screen.png
+│       │   ├── LA083_S8_L003_2_val_2_screen.txt
+│       │   ├── LA089_S9_L003_1_val_1_screen.bisulfite_orientation.png
+│       │   ├── LA089_S9_L003_1_val_1_screen.html
+│       │   ├── LA089_S9_L003_1_val_1_screen.png
+│       │   ├── LA089_S9_L003_1_val_1_screen.txt
+│       │   ├── LA089_S9_L003_2_val_2_screen.bisulfite_orientation.png
+│       │   ├── LA089_S9_L003_2_val_2_screen.html
+│       │   ├── LA089_S9_L003_2_val_2_screen.png
+│       │   └── LA089_S9_L003_2_val_2_screen.txt
+│       ├── 04_aligned
+│       │   ├── LA060_S6_L003_1_val_1_bismark_bt2_pe.bam
+│       │   ├── LA060_S6_L003_1_val_1_bismark_bt2_PE_report.txt
+│       │   ├── LA060_S6_L003_1_val_1.fq.gz_unmapped_reads_1.fq.gz
+│       │   ├── LA060_S6_L003_2_val_2.fq.gz_unmapped_reads_2.fq.gz
+│       │   ├── LA081_S7_L003_1_val_1_bismark_bt2_pe.bam
+│       │   ├── LA081_S7_L003_1_val_1_bismark_bt2_PE_report.txt
+│       │   ├── LA081_S7_L003_1_val_1.fq.gz_unmapped_reads_1.fq.gz
+│       │   ├── LA081_S7_L003_2_val_2.fq.gz_unmapped_reads_2.fq.gz
+│       │   ├── LA083_S8_L003_1_val_1_bismark_bt2_pe.bam
+│       │   ├── LA083_S8_L003_1_val_1_bismark_bt2_PE_report.txt
+│       │   ├── LA083_S8_L003_1_val_1.fq.gz_unmapped_reads_1.fq.gz
+│       │   ├── LA083_S8_L003_2_val_2.fq.gz_unmapped_reads_2.fq.gz
+│       │   ├── LA089_S9_L003_1_val_1_bismark_bt2_pe.bam
+│       │   ├── LA089_S9_L003_1_val_1_bismark_bt2_PE_report.txt
+│       │   ├── LA089_S9_L003_1_val_1.fq.gz_unmapped_reads_1.fq.gz
+│       │   └── LA089_S9_L003_2_val_2.fq.gz_unmapped_reads_2.fq.gz
+│       ├── 05_deduplicated
+│       │   ├── LA060_merged_name_sorted.deduplication_report.txt
+│       │   ├── LA081_merged_name_sorted.deduplication_report.txt
+│       │   ├── LA083_merged_name_sorted.deduplication_report.txt
+│       │   └── LA089_merged_name_sorted.deduplication_report.txt
+│       ├── 06_methylation
+│       │   ├── CpG_context_LA060_merged_name_sorted.deduplicated.txt.gz
+│       │   ├── CpG_context_LA081_merged_name_sorted.deduplicated.txt.gz
+│       │   ├── CpG_context_LA083_merged_name_sorted.deduplicated.txt.gz
+│       │   ├── CpG_context_LA089_merged_name_sorted.deduplicated.txt.gz
+│       │   ├── LA060_merged_name_sorted.deduplicated.bedGraph.gz
+│       │   ├── LA060_merged_name_sorted.deduplicated.bismark.cov.gz
+│       │   ├── LA060_merged_name_sorted.deduplicated.M-bias_R1.png
+│       │   ├── LA060_merged_name_sorted.deduplicated.M-bias_R2.png
+│       │   ├── LA060_merged_name_sorted.deduplicated.M-bias.txt
+│       │   ├── LA060_merged_name_sorted.deduplicated_splitting_report.txt
+│       │   ├── LA081_merged_name_sorted.deduplicated.bedGraph.gz
+│       │   ├── LA081_merged_name_sorted.deduplicated.bismark.cov.gz
+│       │   ├── LA081_merged_name_sorted.deduplicated.M-bias_R1.png
+│       │   ├── LA081_merged_name_sorted.deduplicated.M-bias_R2.png
+│       │   ├── LA081_merged_name_sorted.deduplicated.M-bias.txt
+│       │   ├── LA081_merged_name_sorted.deduplicated_splitting_report.txt
+│       │   ├── LA083_merged_name_sorted.deduplicated.bedGraph.gz
+│       │   ├── LA083_merged_name_sorted.deduplicated.bismark.cov.gz
+│       │   ├── LA083_merged_name_sorted.deduplicated.M-bias_R1.png
+│       │   ├── LA083_merged_name_sorted.deduplicated.M-bias_R2.png
+│       │   ├── LA083_merged_name_sorted.deduplicated.M-bias.txt
+│       │   ├── LA083_merged_name_sorted.deduplicated_splitting_report.txt
+│       │   ├── LA089_merged_name_sorted.deduplicated.bedGraph.gz
+│       │   ├── LA089_merged_name_sorted.deduplicated.bismark.cov.gz
+│       │   ├── LA089_merged_name_sorted.deduplicated.M-bias_R1.png
+│       │   ├── LA089_merged_name_sorted.deduplicated.M-bias_R2.png
+│       │   ├── LA089_merged_name_sorted.deduplicated.M-bias.txt
+│       │   ├── LA089_merged_name_sorted.deduplicated_splitting_report.txt
+│       │   ├── Non_CpG_context_LA060_merged_name_sorted.deduplicated.txt.gz
+│       │   ├── Non_CpG_context_LA081_merged_name_sorted.deduplicated.txt.gz
+│       │   ├── Non_CpG_context_LA083_merged_name_sorted.deduplicated.txt.gz
+│       │   └── Non_CpG_context_LA089_merged_name_sorted.deduplicated.txt.gz
+│       ├── 08_cytosine_reports
+│       │   ├── LA060_merged_name_sorted.deduplicated.bismark.cov.gz.CpG_report.merged_CpG_evidence.cov.gz
+│       │   ├── LA060_merged_name_sorted.deduplicated.bismark.cov.gz.CpG_report.txt.gz
+│       │   ├── LA060_merged_name_sorted.deduplicated.bismark.cov.gz.cytosine_context_summary.txt
+│       │   ├── LA081_merged_name_sorted.deduplicated.bismark.cov.gz.CpG_report.merged_CpG_evidence.cov.gz
+│       │   ├── LA081_merged_name_sorted.deduplicated.bismark.cov.gz.CpG_report.txt.gz
+│       │   ├── LA081_merged_name_sorted.deduplicated.bismark.cov.gz.cytosine_context_summary.txt
+│       │   ├── LA083_merged_name_sorted.deduplicated.bismark.cov.gz.CpG_report.merged_CpG_evidence.cov.gz
+│       │   ├── LA083_merged_name_sorted.deduplicated.bismark.cov.gz.CpG_report.txt.gz
+│       │   ├── LA083_merged_name_sorted.deduplicated.bismark.cov.gz.cytosine_context_summary.txt
+│       │   ├── LA089_merged_name_sorted.deduplicated.bismark.cov.gz.CpG_report.merged_CpG_evidence.cov.gz
+│       │   ├── LA089_merged_name_sorted.deduplicated.bismark.cov.gz.CpG_report.txt.gz
+│       │   └── LA089_merged_name_sorted.deduplicated.bismark.cov.gz.cytosine_context_summary.txt
+│       ├── 09_multiqc
+│       │   ├── multiqc_data
+│       │   │   ├── multiqc_bismark_alignment.txt
+│       │   │   ├── multiqc_bismark_dedup.txt
+│       │   │   ├── multiqc_bismark_methextract.txt
+│       │   │   ├── multiqc_citations.txt
+│       │   │   ├── multiqc_cutadapt.txt
+│       │   │   ├── multiqc_data.json
+│       │   │   ├── multiqc_fastqc.txt
+│       │   │   ├── multiqc_fastq_screen.txt
+│       │   │   ├── multiqc_general_stats.txt
+│       │   │   ├── multiqc.log
+│       │   │   ├── multiqc_sources.txt
+│       │   │   ├── picard_histogram_1.txt
+│       │   │   ├── picard_histogram_2.txt
+│       │   │   └── picard_histogram.txt
+│       │   └── multiqc_report.html
+│       ├── bam_metrics
+│       │   ├── *_flagstat.txt
+│       │   ├── LA060_insert_metrics.txt
+│       │   ├── LA060_S6_L003_1_val_1_bismark_bt2_pe_flagstat.txt
+│       │   ├── LA060_S6_L003_1_val_1_bismark_bt2_pe_insert_metrics.txt
+│       │   ├── LA081_S7_L003_1_val_1_bismark_bt2_pe_flagstat.txt
+│       │   ├── LA081_S7_L003_1_val_1_bismark_bt2_pe_insert_metrics.txt
+│       │   ├── LA083_S8_L003_1_val_1_bismark_bt2_pe_flagstat.txt
+│       │   ├── LA083_S8_L003_1_val_1_bismark_bt2_pe_insert_metrics.txt
+│       │   ├── LA089_S9_L003_1_val_1_bismark_bt2_pe_flagstat.txt
+│       │   └── LA089_S9_L003_1_val_1_bismark_bt2_pe_insert_metrics.txt
+│       ├── LA060_insert_size_historgram.pdf
+│       ├── LA060_insert_size_metrics.txt
+│       ├── LICENSE
+│       ├── logs
+│       │   ├── align
+│       │   │   ├── 10.err
+│       │   │   ├── 10.out
+│       │   │   ├── 11.err
+│       │   │   ├── 11.out
+│       │   │   ├── 12.err
+│       │   │   ├── 12.out
+│       │   │   ├── 9.err
+│       │   │   └── 9.out
+│       │   ├── cytosine_reports
+│       │   │   ├── 13.err
+│       │   │   ├── 13.out
+│       │   │   ├── 18.err
+│       │   │   ├── 18.out
+│       │   │   ├── 23.err
+│       │   │   ├── 23.out
+│       │   │   ├── 28.err
+│       │   │   └── 28.out
+│       │   ├── deduplicate
+│       │   │   ├── 15.err
+│       │   │   ├── 15.out
+│       │   │   ├── 20.err
+│       │   │   ├── 20.out
+│       │   │   ├── 25.err
+│       │   │   ├── 25.out
+│       │   │   ├── 30.err
+│       │   │   └── 30.out
+│       │   ├── extract_methylation
+│       │   │   ├── 14.err
+│       │   │   ├── 14.out
+│       │   │   ├── 19.err
+│       │   │   ├── 19.out
+│       │   │   ├── 24.err
+│       │   │   ├── 24.out
+│       │   │   ├── 29.err
+│       │   │   └── 29.out
+│       │   ├── merge_lanes
+│       │   │   ├── 17.err
+│       │   │   ├── 17.out
+│       │   │   ├── 22.err
+│       │   │   ├── 22.out
+│       │   │   ├── 27.err
+│       │   │   ├── 27.out
+│       │   │   ├── 32.err
+│       │   │   └── 32.out
+│       │   ├── name_sort
+│       │   │   ├── 16.err
+│       │   │   ├── 16.out
+│       │   │   ├── 21.err
+│       │   │   ├── 21.out
+│       │   │   ├── 26.err
+│       │   │   ├── 26.out
+│       │   │   ├── 31.err
+│       │   │   └── 31.out
+│       │   ├── qc_report
+│       │   │   ├── 13.err
+│       │   │   ├── 13.out
+│       │   │   ├── 33.err
+│       │   │   └── 33.out
+│       │   ├── screen
+│       │   │   ├── 5.err
+│       │   │   ├── 5.out
+│       │   │   ├── 6.err
+│       │   │   ├── 6.out
+│       │   │   ├── 7.err
+│       │   │   ├── 7.out
+│       │   │   ├── 8.err
+│       │   │   └── 8.out
+│       │   └── trim
+│       │       ├── 1.err
+│       │       ├── 1.out
+│       │       ├── 2.err
+│       │       ├── 2.out
+│       │       ├── 3.err
+│       │       ├── 3.out
+│       │       ├── 4.err
+│       │       └── 4.out
+│       ├── QC
+│       ├── README.md
+│       └── task_samples.yaml
+├── docs
+│   ├── analysis_workflow.md
+│   ├── Experiments
+│   │   ├── 20251001_LACOFDPlasmaCfDNAIsolation.docx
+│   │   ├── 20260316_FirefighterExpansion_PilotCfDNAExtraction.docx
+│   │   └── ConsolidatedPlasmaSampleManifest_20251001_LW.xlsx
+│   ├── FFCCSExternalDataRequestForm_F_2025-03-14_0755.pdf
+│   ├── JL UCOP FF Research Plan.pdf
+│   ├── lab_reproducibility_standard.md
+│   └── methods.md
+├── README.md
+├── results
+├── scripts
+│   ├── run_local.sh
+│   ├── run_slurm.sh
+│   └── slurm
+│       ├── submit_rscript.sbatch
+│       └── submit_snakemake.sbatch
+├── tests
+│   ├── README.md
+│   └── smoke_test.sh
+└── tree.txt
+
+49 directories, 345 files
