@@ -1,0 +1,6 @@
+variable\ttype\tallowed_values\tdescription\tsource
+sample_id\tstring\t-\tUnique sample identifier\tconfig/samples.tsv
+subject_id\tstring\t-\tSubject identifier\tclinical DB
+assay\tstring\twgbs|snrna|wgs\tAssay type\tlab
+batch\tinteger\t-\tProcessing/sequencing batch\tlab
+sex\tstring\tM|F|U\tSex at birth\tclinical DB

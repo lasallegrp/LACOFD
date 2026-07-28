@@ -1,0 +1,38 @@
+# =====================================================
+# Ignore analysis outputs inside subfolders
+# =====================================================
+
+epigenerator_chds_breast_cancer_3_Gen/
+analysis/
+config/
+data/
+docs/
+results/old_analysis_03312026
+reproducibility/
+results/
+tests/
+# =====================================================
+# Ignore data files everywhere
+# =====================================================
+**/.cache/
+*.sqlite3
+**/AnnotationHub/
+*.xlsx
+*.rds
+*.RData
+*.cov.gz
+*.bam
+*.bed
+*.gz
+
+# =====================================================
+# Ignore plots/logs
+# =====================================================
+
+Rplots.pdf
+*.log
+*.out
+*.err
+
+# Mac
+.DS_Store

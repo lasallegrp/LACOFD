@@ -1,0 +1,6 @@
+type: object
+required: [project, paths, references]
+properties:
+  project:
+    type: object
+    required: [id, assay, genome_build]

@@ -1,0 +1,38 @@
+project:
+  id: "PROJECT_NAME"
+  assay: "wgbs"   # wgbs | snrna | wgs
+  genome_build: "hg38"
+
+paths:
+  samplesheet: "config/samples.tsv"
+  units: "config/units.tsv"
+  outdir: "results"
+  logdir: "logs"
+
+references:
+  fasta: "/path/to/reference.fa"
+  gtf: "/path/to/annotation.gtf"      # optional
+  bwa_index: "/path/to/bwa/index"     # optional
+  star_index: "/path/to/star/index"   # optional
+
+resources:
+  default_threads: 4
+  default_mem_mb: 16000
+  default_time_min: 240
+
+modules:
+  use_snakemake: true
+  use_slurm_scripts: true
+
+wgbs:
+  aligner: "bismark"
+  min_coverage: 1
+
+snrna:
+  aligner: "starsolo"
+  min_cells: 200
+  max_mt_pct: 20
+
+wgs:
+  caller: "gatk"
+  call_sv: false
