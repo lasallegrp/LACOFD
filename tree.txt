@@ -58,10 +58,13 @@
 │           │               └── QC2567.2026_07_02__20_48 (1).xlsx
 │           ├── dna_isolation
 │           │   ├── arizona
-│           │   │   └── Arizona_ConsolidatedPlasmaSampleManifest_20251001_LW.xlsx
+│           │   │   └── DNAEXT_AZ_01
+│           │   │       └── Arizona_ConsolidatedPlasmaSampleManifest_20251001_LW.xlsx
 │           │   └── la_county
-│           │       ├── LACoFD_LaSalle_Sullivan_DNA_Isolation29June2026_GK.xlsx
-│           │       └── NOVA1599.2026_08_04__20_36.xlsx
+│           │       ├── DNAEXT_LA_01
+│           │       │   ├── LACoFD_LaSalle_Sullivan_DNA_Isolation_01_29June2026_GK.xlsx
+│           │       │   └── NOVA1599.2026_08_04__20_36.xlsx
+│           │       └── DNAEXT_LA_02
 │           └── sample_manifests
 │               ├── arizona
 │               │   ├── Arizona_UC_Davis_Plasma_Sample_Manifest_15Sep2025_LW.xlsx
@@ -437,11 +440,11 @@
 │               ├── la_county_pre_post_dna_isolation_plots.pdf
 │               ├── la_county_pre_post_normalised_dna_yield_colored.pdf
 │               └── la_county_pre_post_normalised_dna_yield.pdf
-├── Rplots.pdf
 ├── scripts
 │   ├── dna_isolation
-│   │   ├── 00_clean_up_la_county.R
-│   │   └── 01_plot_la_county_pre_post.R
+│   │   ├── 01_clean_dna_isolation.R
+│   │   └── 02_plot_dna_isolation_pre_post.R
+│   ├── reorganize_repo.sh
 │   ├── run_local.sh
 │   ├── run_slurm.sh
 │   └── slurm
@@ -452,4 +455,4 @@
 │   └── smoke_test.sh
 └── tree.txt
 
-80 directories, 372 files
+83 directories, 372 files
