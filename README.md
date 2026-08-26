@@ -1,10 +1,10 @@
-# LACOFD
+#  LACOFD Firefighter DNA Methylation Study
 
 ## Examining longitudinal changes in DNA methylation in firefighters exposed to products of combustion
 
-This repository contains data-processing workflows, quality-control procedures, and analysis code for the **Los Angeles County Fire Department (LACoFD) firefighter DNA methylation study**.
+This repository contains data-processing workflows, quality-control procedures, and analysis code for the **Los Angeles County Fire Department (LACoFD) firefighter DNA methylation study**, led by Thomas Sullivan (LACoFD) and Janine LaSalle (University of California, Davis).
 
-The study is part of the California Firefighter Cancer Prevention and Research Program and examines molecular changes associated with occupational exposure to products of combustion. Firefighters can be repeatedly exposed to potentially harmful chemicals during training and active duty. The study uses longitudinal samples collected before and after exposure to investigate whether these exposures are associated with changes in DNA methylation.
+The study is part of the California Firefighter Cancer Prevention and Research Program (Award: F01FF8767) and examines molecular changes associated with occupational exposure to products of combustion. Firefighters can be repeatedly exposed to potentially harmful chemicals during training and active duty. The study uses longitudinal samples collected before and after exposure to investigate whether these exposures are associated with changes in DNA methylation.
 
 The project includes new firefighter recruits and experienced instructors, who differ in their histories and frequency of occupational exposure. Chemical exposure measurements currently include volatile organic compounds (VOCs) and polycyclic aromatic hydrocarbons (PAHs). Cell-free DNA (cfDNA) is isolated from plasma and characterized before whole-genome bisulfite sequencing (WGBS). DNA methylation profiles generated from WGBS will subsequently be examined in relation to exposure measures and participant characteristics.
 
