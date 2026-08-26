@@ -174,7 +174,7 @@ p1 <- ggplot(
     x = NULL,
     y = "DNA concentration (ng/µL)",
     caption = paste(
-      "Lines connect measurements from the same participant.",
+      "Lines are from the same participant.",
       "Blue = increase, orange = decrease, grey = no meaningful change.",
       "White diamonds indicate medians."
     )
@@ -319,8 +319,8 @@ pdf_file <- file.path(
 
 pdf(
   pdf_file,
-  width = 7,
-  height = 6,
+  width = 14,
+  height = 7,
   onefile = TRUE
 )
 
@@ -336,8 +336,8 @@ ggsave(
     "la_county_pre_post_dna_concentration_colored.pdf"
   ),
   plot = p1,
-  width = 7,
-  height = 6,
+  width = 14,
+  height = 7,
   device = cairo_pdf
 )
 
@@ -347,8 +347,8 @@ ggsave(
     "la_county_pre_post_normalised_dna_yield_colored.pdf"
   ),
   plot = p2,
-  width = 7,
-  height = 6,
+  width = 14,
+  height = 7,
   device = cairo_pdf
 )
 
