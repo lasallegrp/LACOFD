@@ -1,21 +1,20 @@
 .
 ├── analysis
-│   ├── config
-│   │   ├── config.yaml
-│   │   ├── samples.tsv
-│   │   ├── schema
-│   │   │   └── config.schema.yaml
-│   │   └── units.tsv
 │   ├── logs
 │   ├── notebooks
-│   ├── README.md
-│   ├── renv.lock
-│   └── SmallSequencingBatchForQC
-│       ├── LA060_S6_L003_1_val_1_bismark_bt2_pe_est_lib_complex_metrics.txt
-│       ├── LA081_S7_L003_1_val_1_bismark_bt2_pe_est_lib_complex_metrics.txt
-│       ├── LA083_S8_L003_1_val_1_bismark_bt2_pe_est_lib_complex_metrics.txt
-│       └── LA089_S9_L003_1_val_1_bismark_bt2_pe_est_lib_complex_metrics.txt
+│   └── README.md
+├── config
+│   └── config.yaml
 ├── data
+│   ├── interim
+│   │   └── wet_lab
+│   │       └── dna_isolation
+│   │           ├── arizona
+│   │           └── la_county
+│   │               ├── archive_old_outputs
+│   │               │   ├── la_county_dna_isolation_aliquot_level_cleaned.tsv
+│   │               │   └── la_county_dna_isolation_extraction_level.tsv
+│   │               └── la_county_dna_isolation_cleaned.tsv
 │   ├── metadata
 │   │   ├── arizona
 │   │   │   ├── Data Pull L. Williams_10.27.2025.csv
@@ -27,44 +26,52 @@
 │   ├── processed
 │   │   └── wet_lab
 │   │       └── dna_isolation
+│   │           ├── arizona
+│   │           ├── combined
 │   │           └── la_county
-│   │               ├── la_county_dna_isolation_aliquot_level_cleaned.tsv
-│   │               ├── la_county_dna_isolation_analysis_ready.tsv
-│   │               ├── la_county_dna_isolation_cleaned.tsv
-│   │               └── la_county_dna_isolation_extraction_level.tsv
+│   │               └── DNAEXT_LA_01
+│   │                   ├── DNAEXT_LA_01_dna_isolation_analysis_ready.tsv
+│   │                   └── DNAEXT_LA_01_dna_isolation_cleaned.tsv
 │   └── raw
 │       └── wet_lab
 │           ├── bioanalyzer
 │           │   └── la_county
-│           │       ├── electropherograms
-│           │       │   ├── submission_1
-│           │       │   │   └── QC2457_2.pdf
-│           │       │   ├── submission_2
-│           │       │   │   └── QC2507 (2).pdf
-│           │       │   └── submission_3
-│           │       │       ├── 2100_expert_High_Sensitivity_DNA_Assay_DE13701287_2026-_6QTLrb8.pdf
-│           │       │       ├── 2100_expert_High_Sensitivity_DNA_Assay_DE13701287_2026-_GuvcRcq.pdf
-│           │       │       ├── 2100_expert_High_Sensitivity_DNA_Assay_DE13701287_2026-_r0T6NmA.pdf
-│           │       │       ├── Bioanalyzer1_High_Sensitivity_DNA_Assay_DE34903152_2026_erVQWWm.pdf
-│           │       │       ├── QC2567_S12toS22_DE13701287_2026-07-08_10-51-23.pdf
-│           │       │       ├── QC2567_S1toS11_DE13701287_2026-07-08_10-05-12.pdf
-│           │       │       └── QC2567_Sample_47__57.pdf
-│           │       └── submission_forms
-│           │           ├── submission_1
-│           │           │   └── QC2457.2026_03_19__18_50 (1).xlsx
-│           │           ├── submission_2
-│           │           │   └── QC2507.2026_05_07__23_13 (1).xlsx
-│           │           └── submission_3
-│           │               └── QC2567.2026_07_02__20_48 (1).xlsx
+│           │       ├── BIOA_LA_01
+│           │       │   ├── README.md
+│           │       │   ├── reports
+│           │       │   │   ├── 2100_expert_High_Sensitivity_DNA_Assay_DE13701287_2026-_6QTLrb8.pdf
+│           │       │   │   ├── 2100_expert_High_Sensitivity_DNA_Assay_DE13701287_2026-_GuvcRcq.pdf
+│           │       │   │   ├── 2100_expert_High_Sensitivity_DNA_Assay_DE13701287_2026-_r0T6NmA.pdf
+│           │       │   │   ├── Bioanalyzer1_High_Sensitivity_DNA_Assay_DE34903152_2026_erVQWWm.pdf
+│           │       │   │   ├── QC2457_2.pdf
+│           │       │   │   ├── QC2507 (2).pdf
+│           │       │   │   ├── QC2567_S12toS22_DE13701287_2026-07-08_10-51-23.pdf
+│           │       │   │   ├── QC2567_S1toS11_DE13701287_2026-07-08_10-05-12.pdf
+│           │       │   │   └── QC2567_Sample_47__57.pdf
+│           │       │   └── submission_form
+│           │       │       ├── QC2457.2026_03_19__18_50 (1).xlsx
+│           │       │       ├── QC2507.2026_05_07__23_13 (1).xlsx
+│           │       │       └── QC2567.2026_07_02__20_48 (1).xlsx
+│           │       ├── BIOA_LA_02
+│           │       │   ├── README.md
+│           │       │   ├── reports
+│           │       │   └── submission_form
+│           │       └── BIOA_LA_03
+│           │           ├── README.md
+│           │           ├── reports
+│           │           └── submission_form
 │           ├── dna_isolation
 │           │   ├── arizona
 │           │   │   └── DNAEXT_AZ_01
-│           │   │       └── Arizona_ConsolidatedPlasmaSampleManifest_20251001_LW.xlsx
+│           │   │       ├── Arizona_ConsolidatedPlasmaSampleManifest_20251001_LW.xlsx
+│           │   │       └── README.md
 │           │   └── la_county
 │           │       ├── DNAEXT_LA_01
 │           │       │   ├── LACoFD_LaSalle_Sullivan_DNA_Isolation_01_29June2026_GK.xlsx
-│           │       │   └── NOVA1599.2026_08_04__20_36.xlsx
+│           │       │   ├── NOVA1599.2026_08_04__20_36.xlsx
+│           │       │   └── README.md
 │           │       └── DNAEXT_LA_02
+│           │           └── README.md
 │           └── sample_manifests
 │               ├── arizona
 │               │   ├── Arizona_UC_Davis_Plasma_Sample_Manifest_15Sep2025_LW.xlsx
@@ -87,7 +94,46 @@
 │       └── la_county
 ├── pipeline_runs
 │   └── epigenerator
-│       └── SmallSequencingBatchForQC
+│       ├── EPI_AZ_01
+│       │   ├── 00_slurm
+│       │   │   ├── config.yaml
+│       │   │   ├── DMRichR_SLURM_template.sh
+│       │   │   └── slurm-status.py
+│       │   ├── 00_software
+│       │   │   ├── environment.yml
+│       │   │   └── fastq_screen.conf
+│       │   ├── 01_FASTQ_Me2.py
+│       │   ├── 02_CpG_Me2_PE
+│       │   ├── 02_CpG_Me2_SE
+│       │   ├── LICENSE
+│       │   └── README.md
+│       ├── EPI_LA_01
+│       │   ├── 00_slurm
+│       │   │   ├── config.yaml
+│       │   │   ├── DMRichR_SLURM_template.sh
+│       │   │   └── slurm-status.py
+│       │   ├── 00_software
+│       │   │   ├── environment.yml
+│       │   │   └── fastq_screen.conf
+│       │   ├── 01_FASTQ_Me2.py
+│       │   ├── 02_CpG_Me2_PE
+│       │   ├── 02_CpG_Me2_SE
+│       │   ├── LICENSE
+│       │   └── README.md
+│       ├── EPI_LA_02
+│       │   ├── 00_slurm
+│       │   │   ├── config.yaml
+│       │   │   ├── DMRichR_SLURM_template.sh
+│       │   │   └── slurm-status.py
+│       │   ├── 00_software
+│       │   │   ├── environment.yml
+│       │   │   └── fastq_screen.conf
+│       │   ├── 01_FASTQ_Me2.py
+│       │   ├── 02_CpG_Me2_PE
+│       │   ├── 02_CpG_Me2_SE
+│       │   ├── LICENSE
+│       │   └── README.md
+│       └── EPI_PILOT_01
 │           ├── 00_slurm
 │           │   ├── config.yaml
 │           │   ├── DMRichR_SLURM_template.sh
@@ -431,28 +477,44 @@
 │           └── task_samples.yaml
 ├── README.md
 ├── results
+│   ├── sequencing_qc
+│   │   └── EPI_PILOT_01
+│   │       └── library_complexity
+│   │           ├── LA060_S6_L003_1_val_1_bismark_bt2_pe_est_lib_complex_metrics.txt
+│   │           ├── LA081_S7_L003_1_val_1_bismark_bt2_pe_est_lib_complex_metrics.txt
+│   │           ├── LA083_S8_L003_1_val_1_bismark_bt2_pe_est_lib_complex_metrics.txt
+│   │           └── LA089_S9_L003_1_val_1_bismark_bt2_pe_est_lib_complex_metrics.txt
 │   └── wet_lab_qc
 │       └── dna_isolation
+│           ├── arizona
+│           ├── combined
 │           └── la_county
-│               ├── la_county_pre_post_dna_concentration_colored.pdf
-│               ├── la_county_pre_post_dna_concentration.pdf
-│               ├── la_county_pre_post_dna_isolation_plots_colored.pdf
-│               ├── la_county_pre_post_dna_isolation_plots.pdf
-│               ├── la_county_pre_post_normalised_dna_yield_colored.pdf
-│               └── la_county_pre_post_normalised_dna_yield.pdf
+│               └── DNAEXT_LA_01
+│                   ├── DNAEXT_LA_01_concentration_pre_post_change.tsv
+│                   ├── DNAEXT_LA_01_pre_post_dna_concentration.pdf
+│                   ├── DNAEXT_LA_01_pre_post_dna_isolation_plots.pdf
+│                   ├── DNAEXT_LA_01_pre_post_normalised_dna_yield.pdf
+│                   ├── DNAEXT_LA_01_yield_pre_post_change.tsv
+│                   └── old_outputs
+│                       ├── la_county_pre_post_dna_concentration_colored.pdf
+│                       ├── la_county_pre_post_dna_concentration.pdf
+│                       ├── la_county_pre_post_dna_isolation_plots_colored.pdf
+│                       ├── la_county_pre_post_dna_isolation_plots.pdf
+│                       ├── la_county_pre_post_normalised_dna_yield_colored.pdf
+│                       └── la_county_pre_post_normalised_dna_yield.pdf
+├── Rplots.pdf
 ├── scripts
-│   ├── dna_isolation
-│   │   ├── 01_clean_dna_isolation.R
-│   │   └── 02_plot_dna_isolation_pre_post.R
-│   ├── reorganize_repo.sh
-│   ├── run_local.sh
-│   ├── run_slurm.sh
-│   └── slurm
-│       ├── submit_rscript.sbatch
-│       └── submit_snakemake.sbatch
+│   ├── repo
+│   │   └── reorganize_repo.sh
+│   ├── slurm
+│   │   └── submit_snakemake.sbatch
+│   └── wet_lab
+│       └── dna_isolation
+│           ├── 01_clean_dna_isolation.R
+│           ├── 02_plot_dna_isolation_pre_post.R
+│           └── submit_rscript.sbatch
 ├── tests
-│   ├── README.md
-│   └── smoke_test.sh
+│   └── README.md
 └── tree.txt
 
-83 directories, 372 files
+109 directories, 408 files
