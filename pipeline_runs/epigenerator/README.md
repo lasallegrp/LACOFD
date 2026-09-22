@@ -10,11 +10,10 @@
 	* [Genome Preparation](#genome-preparation)
 * [1. Preparing Raw Sequences](#1-preparing-raw-sequences)
 	* [Unique File Names Are Required](#unique-file-names-are-required)
-	* [Option A: Renaming Scripts (Recommended)](#option-a-renaming-scripts-recommended)
+	* [Option A: Linking Scripts (Recommended)](#option-a-linking-scripts-recommended)
 		* [Step 0: Soft-Link the Raw Data](#step-0-soft-link-the-raw-data)
-		* [Step 1: Build the Renaming Table](#step-1-build-the-renaming-table)
-		* [Step 2: Rename the Files in Place](#step-2-rename-the-files-in-place)
-		* [Step 3: Place Files and Write `task_samples.yaml`](#step-3-place-files-and-write-task_samplesyaml)
+		* [Step 1: Build the Naming Table](#step-1-build-the-naming-table)
+		* [Step 2: Link Files and Write `task_samples.yaml`](#step-2-link-files-and-write-task_samplesyaml)
 		* [Check the Result](#check-the-result)
 	* [Option B: `FASTQ_Me2` (Legacy / SLIMS Downloads)](#option-b-fastq_me2-legacy--slims-downloads)
 	* [`task_samples.yaml` Format](#task_samplesyaml-format)
@@ -39,7 +38,7 @@ The original [CpG_Me](https://github.com/ben-laufer/CpG_Me), written by Dr. Ben 
     * Multi-threading of jobs can be handled locally or on SLURM
     * Jobs remove corrupted intermediate files if they fail
     * Snakemake's "memory" prevents re-running of samples and files that have already been generated
-* Three renaming scripts in the shared `scripts/` folder (`pipeline_runs/epigenerator/scripts/` for LaSalle Lab) are now the recommended way to prepare raw sequences, especially for data spread across multiple lanes, runs, or flow cells (see [Option A](#option-a-renaming-scripts-recommended)). They guarantee that every FASTQ has a unique name before `CpG_Me2` is run. `FASTQ_Me2` is kept for downloading data from SLIMS.
+* Two linking scripts in the shared `scripts/` folder (`pipeline_runs/epigenerator/scripts/` for LaSalle Lab) are now the recommended way to prepare raw sequences, especially for data spread across multiple lanes, runs, or flow cells (see [Option A](#option-a-linking-scripts-recommended)). They give every FASTQ a unique name in the run by creating hard links, so the raw data is never renamed or modified. `FASTQ_Me2` is kept for downloading data from SLIMS.
 
 ## Project Set-Up
 
@@ -59,19 +58,18 @@ cd {project_name}
 
 ### LaSalle Lab Layout: Shared Scripts and README
 
-In LaSalle Lab projects, each pipeline run is its own epigenerator clone inside `pipeline_runs/epigenerator/`. The renaming scripts and this README live **once**, one level above the runs, and are shared by every run:
+In LaSalle Lab projects, each pipeline run is its own epigenerator clone inside `pipeline_runs/epigenerator/`. The linking scripts and this README live **once**, one level above the runs, and are shared by every run:
 
 ```
 {lab_project}/pipeline_runs/epigenerator/
 ├── README.md                  # this file, shared by all runs
-├── scripts/                   # renaming scripts, shared by all runs
+├── scripts/                   # linking scripts, shared by all runs
 │   ├── 01_create_transfers_list_csv.py
-│   ├── 02_data_renaming.py
-│   └── 03_removeR_change_to_fq_gen_yaml.py
+│   └── 02_link_fastqs_gen_yaml.py
 ├── EPI_AZ_01/                 # one epigenerator clone per run ("run directory")
 │   ├── 01_raw_sequences/
 │   │   ├── 2026_LACOFD_WGBS_cellfree_Logan -> /quobyte/lasallegrp/data/...   # soft link (Step 0)
-│   │   └── *_1.fq.gz, *_2.fq.gz                                             # hard links (Step 3)
+│   │   └── *_1.fq.gz, *_2.fq.gz                                             # hard links (Step 2)
 │   └── task_samples.yaml
 ├── EPI_AZ_PILOT_01/
 ├── EPI_LA_01/
@@ -199,11 +197,13 @@ Illumina file names (`{sample}_S{n}_L{lane}_R{1|2}_001.fastq.gz`) only encode th
     └── JLLW_Nova1479P_Williams_L6/
 ```
 
-If these files are collected into `01_raw_sequences/` without renaming, same-named files overwrite each other or are skipped. The lanes also collapse into a single entry in `task_samples.yaml`. Either way, sequencing data is **silently lost** from the analysis. The renaming scripts below prevent this by adding the name of the lane/run folder to every file name.
+If these files are collected into `01_raw_sequences/` under their delivered names, same-named files overwrite each other or are skipped. The lanes also collapse into a single entry in `task_samples.yaml`. Either way, sequencing data is **silently lost** from the analysis. The linking scripts below prevent this: each file appears in `01_raw_sequences/` under a name that includes its lane/run folder, while the delivered files keep their original names.
 
-### Option A: Renaming Scripts (Recommended)
+### Option A: Linking Scripts (Recommended)
 
-Use this for any locally stored data and **always** when data comes from more than one lane, run, or flow cell. The three scripts are in the shared `scripts/` folder one level above the run directories (see [LaSalle Lab Layout](#lasalle-lab-layout-shared-scripts-and-readme)). Run them in order **from your run directory** (e.g. `pipeline_runs/epigenerator/EPI_AZ_01/`) with the environment activated. Replace `{batch}` with the folder that holds your sequencing runs (e.g. `2026_LACOFD_WGBS_cellfree_Logan`).
+Use this for any locally stored data and **always** when data comes from more than one lane, run, or flow cell. The two scripts are in the shared `scripts/` folder one level above the run directories (see [LaSalle Lab Layout](#lasalle-lab-layout-shared-scripts-and-readme)). Run them in order **from your run directory** (e.g. `pipeline_runs/epigenerator/EPI_AZ_01/`) with the environment activated. Replace `{batch}` with the folder that holds your sequencing runs (e.g. `2026_LACOFD_WGBS_cellfree_Logan`).
+
+How it works: the raw data is **never renamed, moved, or modified**. Instead, each raw file gets a **hard link** in `01_raw_sequences/` under its unique final name. A hard link is a second name for the same file on disk. It uses no extra space, the original keeps its delivered name, and deleting the link never deletes the data. Each run can therefore name the files however it needs without affecting the raw data or other runs.
 
 #### Step 0: Soft-Link the Raw Data
 
@@ -222,20 +222,17 @@ Why soft-link instead of copying or moving:
 * **One source of truth.** Raw data stays in the lab's data folder, where lab storage, permissions, and backups are managed, and where other lab members expect to find it. Moving it into a run directory scatters raw data across analysis folders.
 * **No duplicated storage.** WGBS FASTQs take hundreds of gigabytes to terabytes per batch. A copy doubles that for no benefit, and a soft link takes essentially no space.
 * **Several runs can share one dataset.** Pilot runs, re-runs, and runs with different settings (e.g. `EPI_AZ_PILOT_01`, `EPI_AZ_01`) can all link the same data without extra copies.
-* **The raw data is protected from run cleanup.** Deleting a run directory, or the intermediate files `CpG_Me2` produces, removes only the link, not the data.
-* **Provenance is visible.** `ls -l 01_raw_sequences/` shows exactly which data folder a run used.
-
-> [!WARNING]
-> **A soft link points to the real files, so Step 2 renames the files in the lab data folder itself.** This is a permanent change to the shared raw data, which is why the renaming CSV must be kept (see [Step 2](#step-2-rename-the-files-in-place)). Confirm that renaming is acceptable for that data folder before running Step 2. It also means that if the data were already renamed for an earlier run, Steps 1–2 are already done: skip straight to Step 3.
+* **The raw data is protected from run cleanup.** Deleting a run directory, or the intermediate files `CpG_Me2` produces, removes only links, not the data.
+* **Provenance is visible.** `ls -l 01_raw_sequences/` shows exactly which data folder a run used, and the naming table from Step 1 records the real location of every file.
 
 > [!CAUTION]
-> To remove the link, use `unlink 01_raw_sequences/{batch}` (or `rm` with no trailing slash). Never run `rm -r` on the link, especially with a trailing slash (`rm -r 01_raw_sequences/{batch}/`): that can follow the link and delete the raw data.
+> To remove the soft link, use `unlink 01_raw_sequences/{batch}` (or `rm` with no trailing slash). Never run `rm -r` on the link, especially with a trailing slash (`rm -r 01_raw_sequences/{batch}/`): that can follow the link and delete the raw data.
 
-You can link the whole batch folder (as above) or link run folders individually inside `01_raw_sequences/{batch}/`; the scripts follow soft links either way. Each lane/run folder must have a **distinct name**, because that name becomes part of every file name. Folder names that are already distinct (such as `JLLW_Nova1479P_Williams` and `JLLW_Nova1479P_Williams_L2`) can be left as delivered.
+You can link the whole batch folder (as above) or link run folders individually inside `01_raw_sequences/{batch}/`; the scripts follow soft links either way. Never rename files or folders inside the lab data folder. If folder names repeat across runs, Step 1's `--tag-depth` option handles it.
 
-#### Step 1: Build the Renaming Table
+#### Step 1: Build the Naming Table
 
-Script: `01_create_transfers_list_csv.py`. This searches `{batch}` recursively and writes a CSV mapping each original file name to a new name with its folder name inserted before the read direction. It does not rename anything.
+Script: `01_create_transfers_list_csv.py`. This searches `{batch}` recursively (following soft links) and writes a CSV giving each raw file a unique final name. It is **read-only**: nothing is renamed or linked.
 
 ```
 python3 ../scripts/01_create_transfers_list_csv.py \
@@ -243,59 +240,56 @@ python3 ../scripts/01_create_transfers_list_csv.py \
   --output {batch}_transfers.csv
 ```
 
-Example: `LA001_S1_L004_R1_001.fastq.gz` in `JLLW_Nova1479P_Williams_L2/` becomes `LA001_S1_L004_JLLW_Nova1479P_Williams_L2_R1_001.fastq.gz`.
+The final name inserts the name of the folder the file is in and uses the `_1.fq.gz`/`_2.fq.gz` ending that `CpG_Me2` expects. Example: `LA001_S1_L004_R1_001.fastq.gz` in `JLLW_Nova1479P_Williams_L2/` gets the final name `LA001_S1_L004_JLLW_Nova1479P_Williams_L2_1.fq.gz`.
 
-Open the CSV and check the `New_File_Name` column. The script prints a warning if two files would get the same new name (i.e. two folders share a name). It also lists any files that do not follow the Illumina naming pattern, which includes files that were already renamed. Keep this CSV: it is the record of original → new names.
+The CSV records, for each file:
 
-#### Step 2: Rename the Files in Place
+* its delivered name (`Original_File_Name`)
+* its path as found (`File_Path`)
+* its true location with soft links resolved (`Real_Path`)
+* its final name (`New_File_Name`)
+* its `task_samples.yaml` entry (`YAML_Sample`)
 
-Script: `02_data_renaming.py`. Preview first, then apply:
+Open the CSV and check the `New_File_Name` column. The script warns if two files would get the same final name, if a sample is missing R1 or R2, or if a file doesn't follow the Illumina naming pattern. Keep this CSV in the run directory: it is the record of which raw file each linked name refers to.
 
-```
-python3 ../scripts/02_data_renaming.py --file {batch}_transfers.csv --dry-run
-python3 ../scripts/02_data_renaming.py --file {batch}_transfers.csv
-```
+**If folder names repeat across runs** (e.g. every run delivers a folder with the same name), add `--tag-depth 2`. This includes the run folder as well as the lane folder in each name, e.g. `LA001_S1_L004_260819_DTSA1302_1303_1304_1305_NovaX25B_JLLW_Nova1479P_Williams_L2_1.fq.gz`.
 
-The files are renamed inside their original lane/run folders; with a soft-linked batch (Step 0), that means in the lab data folder. Existing files are never overwritten unless you add `--overwrite`. Because the renaming changes the shared raw data, also keep a copy of the CSV next to the data so anyone using the data folder can trace the original names:
+#### Step 2: Link Files and Write `task_samples.yaml`
 
-```
-cp {batch}_transfers.csv /quobyte/lasallegrp/data/{batch}/
-```
-
-#### Step 3: Place Files and Write `task_samples.yaml`
-
-Script: `03_removeR_change_to_fq_gen_yaml.py`. This converts `*_R1_001.fastq.gz` / `*_R2_001.fastq.gz` to `*_1.fq.gz` / `*_2.fq.gz` and **hard-links** each file into `01_raw_sequences/` under its final name. It then writes `task_samples.yaml` to the project directory. Hard links point directly at the files in the lab data folder, even when the data were reached through a soft link. They use no extra disk space, keep working if the soft link is removed, and deleting the hard links in `01_raw_sequences/` does not delete the raw data. The script only looks at files **directly** inside the folders you pass it, so pass the lane/run folders themselves. With the layout above, the shell glob `*/*/` does this.
+Script: `02_link_fastqs_gen_yaml.py`. This reads the CSV and **hard-links** each raw file into `01_raw_sequences/` under its final name. It then writes `task_samples.yaml` to the run directory.
 
 Dry run (default; prints the plan and a preview of the YAML, changes nothing):
 
 ```
-python3 ../scripts/03_removeR_change_to_fq_gen_yaml.py \
-  01_raw_sequences/{batch}/*/*/ \
+python3 ../scripts/02_link_fastqs_gen_yaml.py \
+  --csv {batch}_transfers.csv \
   --target 01_raw_sequences
 ```
 
 Apply:
 
 ```
-python3 ../scripts/03_removeR_change_to_fq_gen_yaml.py \
-  01_raw_sequences/{batch}/*/*/ \
+python3 ../scripts/02_link_fastqs_gen_yaml.py \
+  --csv {batch}_transfers.csv \
   --target 01_raw_sequences --apply
 ```
 
-Notes on step 3:
+Notes on step 2:
 
-* If any two files would end up with the same final name, the script stops before changing anything and lists the conflicting files. Go back to Steps 1–2.
+* If any two rows share a final name, the script stops before changing anything and lists the conflicting files. Re-run Step 1 with a larger `--tag-depth`.
 * `Undetermined_*` reads are skipped by default (`--include-undetermined` to keep them).
 * The sample list is built from **every** `*.fq.gz` in `01_raw_sequences/`, including files from earlier batches; the script reports any that are not from the current batch.
 * The genome defaults to `hg38` (`--genome mm10`, etc. to change it).
-* Hard links require the data folder and the run directory to be on the same filesystem (both under `/quobyte/lasallegrp/`). If linking fails, use `--mode symlink`. Do **not** use `--mode move` with soft-linked data: it would move the raw data out of the lab data folder.
-* Re-running is safe: files already linked are detected and skipped, and the YAML is only written if every file was placed successfully.
+* Hard links require the data folder and the run directory to be on the same filesystem (both under `/quobyte/lasallegrp/`). If linking fails, use `--mode symlink`; the raw data is still untouched.
+* Re-running is safe: links that already point at the right file are skipped, and the YAML is only written if every file was linked successfully.
+* Hard-linked names share one copy of the data, so anything that edits a file in place would change the raw data too. `CpG_Me2` only reads these files, so this does not happen in normal use; don't open or edit them with other tools.
 
 #### Check the Result
 
 ```
-ls 01_raw_sequences/*.fq.gz | wc -l          # should equal 2 x the number of samples in the YAML
-stat -c '%h %n' 01_raw_sequences/*.fq.gz | head   # link count of 2 = hard link to the original
+ls 01_raw_sequences/*.fq.gz | wc -l               # should equal 2 x the number of samples in the YAML
+stat -c '%h %n' 01_raw_sequences/*.fq.gz | head   # link count of 2 = hard link to the raw file
+ls /quobyte/lasallegrp/data/{batch}/*/*/ | head   # raw files still have their delivered names
 cat task_samples.yaml
 ```
 
@@ -303,7 +297,7 @@ Each YAML entry is one lane of one sample (e.g. `LA001_S1_L004_JLLW_Nova1479P_Wi
 
 ### Option B: `FASTQ_Me2` (Legacy / SLIMS Downloads)
 
-`FASTQ_Me2` was previously the standard first step. It is still useful for **downloading data from SLIMS**, but for local data from multiple lanes or runs, use [Option A](#option-a-renaming-scripts-recommended). If you do use `FASTQ_Me2` on local data, first confirm that every file name is unique (see [Unique File Names Are Required](#unique-file-names-are-required)).
+`FASTQ_Me2` was previously the standard first step. It is still useful for **downloading data from SLIMS**, but for local data from multiple lanes or runs, use [Option A](#option-a-linking-scripts-recommended). If you do use `FASTQ_Me2` on local data, first confirm that every file name is unique (see [Unique File Names Are Required](#unique-file-names-are-required)).
 
 **SLIMS Data**
 
@@ -433,7 +427,7 @@ This directory contains the primary genome you want to align your data to as wel
 
 ### `01_raw_sequences/`
 
-This directory contains the raw sequences for each lane of each sample, with unique names, separated into forward (`{sample}_1.fq.gz`) and reverse (`{sample}_2.fq.gz`) reads. When using the renaming scripts, these are hard links to the raw files in the lab data folder, and `01_raw_sequences/{batch}` is the soft link to that folder.
+This directory contains the raw sequences for each lane of each sample, with unique names, separated into forward (`{sample}_1.fq.gz`) and reverse (`{sample}_2.fq.gz`) reads. When using the linking scripts, these are hard links to the raw files in the lab data folder (which keep their delivered names), and `01_raw_sequences/{batch}` is the soft link to that folder.
 
 ### `02_trimmed/`
 
