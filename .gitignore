@@ -3,7 +3,6 @@
 # =====================================================
 
 epigenerator_chds_breast_cancer_3_Gen/
-pipeline_runs/
 analysis/
 config/
 data/
@@ -12,6 +11,7 @@ results/old_analysis_03312026
 reproducibility/
 results/
 tests/
+
 # =====================================================
 # Ignore data files everywhere
 # =====================================================
@@ -37,3 +37,13 @@ Rplots.pdf
 
 # Mac
 .DS_Store
+
+# =====================================================
+# pipeline_runs: ignore everything except the shared scripts and README
+# =====================================================
+pipeline_runs/*
+!pipeline_runs/epigenerator/
+pipeline_runs/epigenerator/*
+!pipeline_runs/epigenerator/scripts/
+!pipeline_runs/epigenerator/README.md
+__pycache__/
