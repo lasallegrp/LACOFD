@@ -11,6 +11,9 @@
 #   * Resources tuned from 1,903 earlier lane alignments (median 9.9 h, peak RAM 60 GB for 99%,
 #     max 79 GB, max 24.6 h): align asks for 70 GB / 36 h first and 100 GB / 72 h on the
 #     automatic retry (profile restart-times: 1). Trimming asks for 2 GB (peak 0.34 GB).
+#   * Screening (fastq_screen) is included but commented out, as in 02_CpG_Me2_PE. To enable it,
+#     uncomment the four 03_screened lines in rule all AND the whole rule screen block.
+#     It runs on screen_account/screen_partition (--config; default publicgrp/low).
 #
 # Usage (from the run directory, one screen session per instance):
 #   snakemake -s ../scripts/04_CpG_Me2_PE_part1_align.smk --profile 00_slurm/ \
@@ -34,6 +37,8 @@ TRIM_ACCOUNT = str(config.get("trim_account", "publicgrp"))
 TRIM_PARTITION = str(config.get("trim_partition", "low"))
 ALIGN_ACCOUNT = str(config.get("align_account", "publicgrp"))
 ALIGN_PARTITION = str(config.get("align_partition", "low"))
+SCREEN_ACCOUNT = str(config.get("screen_account", "publicgrp"))    # used only if rule screen is enabled
+SCREEN_PARTITION = str(config.get("screen_partition", "low"))
 
 print("CpG_Me2 Part 1: {} lanes | trim -> {}/{} | align -> {}/{}".format(
       len(config["samples"]), TRIM_ACCOUNT, TRIM_PARTITION, ALIGN_ACCOUNT, ALIGN_PARTITION), file=sys.stderr)
@@ -49,6 +54,10 @@ rule all:
         expand("02_trimmed/{sample}_2_val_2_fastqc.html", sample=config["samples"]),
         expand("02_trimmed/{sample}_2_val_2_fastqc.zip", sample=config["samples"]),
         expand("02_trimmed/{sample}_2_val_2.fq.gz", sample=config["samples"]),
+        # expand("03_screened/{sample}_1_val_1_screen.bisulfite_orientation.png", sample=config["samples"]),
+        # expand("03_screened/{sample}_1_val_1_screen.html", sample=config["samples"]),
+        # expand("03_screened/{sample}_1_val_1_screen.png", sample=config["samples"]),
+        # expand("03_screened/{sample}_1_val_1_screen.txt", sample=config["samples"]),
         expand("04_aligned/{sample}_1_val_1_bismark_bt2_pe.bam", sample=config["samples"]),
         expand("04_aligned/{sample}_1_val_1_bismark_bt2_PE_report.txt", sample=config["samples"]),
 
@@ -75,6 +84,27 @@ rule trim:
         account = TRIM_ACCOUNT,
         partition = TRIM_PARTITION,
     shell: "trim_galore --paired --cores {threads} --2colour 20 --fastqc --clip_r1 10 --clip_r2 20 --three_prime_clip_r1 10 --three_prime_clip_r2 10 --output_dir 02_trimmed/ {input.r1} {input.r2} 2> {log}"
+
+
+# rule screen:
+#     message: "Screening samples for sample origin"
+#     input:
+#         conf = "00_software/fastq_screen.conf",
+#         r1 = "02_trimmed/{sample}_1_val_1.fq.gz",
+#         r2 = "02_trimmed/{sample}_2_val_2.fq.gz"
+#     output:
+#         out1 = "03_screened/{sample}_1_val_1_screen.bisulfite_orientation.png",
+#         out2 = "03_screened/{sample}_1_val_1_screen.html",
+#         out3 = "03_screened/{sample}_1_val_1_screen.png",
+#         out4 = "03_screened/{sample}_1_val_1_screen.txt"
+#     log: "00_std_err_logs/03_screened_{sample}.log"
+#     benchmark: "00_time_logs/03_screened_{sample}.txt"
+#     resources:
+#         mem_mb = 1024 * 100, # Last number is memory in GB (earlier runs: peak 16.9 GB, ~1 h)
+#         time = 60 * 24 * 2, # Last number is days
+#         account = SCREEN_ACCOUNT,
+#         partition = SCREEN_PARTITION,
+#     shell: "fastq_screen --conf {input.conf} --bisulfite {input.r1} {input.r2} --outdir 03_screened 2> {log}"
 
 
 rule align:
