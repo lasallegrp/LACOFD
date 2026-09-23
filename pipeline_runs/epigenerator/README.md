@@ -396,33 +396,77 @@ python3 ../scripts/03_split_task_samples_chunks.py --chunk-size 10
 
 This writes `chunks/chunk_01.yaml`, `chunks/chunk_02.yaml`, ... (all lanes of a sample stay in the same chunk) and `chunks/chunks.tsv` listing which samples are in each chunk. It warns if some samples have a different number of lanes than the rest, and it never overwrites existing chunk files (running instances read them) unless you add `--overwrite`.
 
-#### Part 1: Run Chunks on Different Accounts
+#### Before Starting Part 1: Checks
 
-Start one `screen` session per chunk, named after the chunk and account, so `screen -ls` shows what runs where. In each session, activate the environment, go to the run directory, and start that chunk. The trimming account is always `publicgrp/low`; the alignment account is set with `--config`:
+From the run directory, with the environment activated:
 
 ```
-screen -S c01_lasallegrp
+ls ../scripts/                        # 01_ ... 06_ files, including the two .smk files
+grep -c "^- " task_samples.yaml       # number of lane-level samples (e.g. 798)
+ls 01_genomes/hg38/                   # alignment needs the genome linked here
+cut -f1-3 chunks/chunks.tsv           # chunks created in the previous step
+```
+
+#### Part 1: Run Chunks on Different Accounts
+
+Each chunk runs as its own Snakemake instance in its own `screen` session. The trimming account is always `publicgrp/low`. The alignment account is chosen per instance with `--config align_account=... align_partition=...`; with no `--config`, alignments also go to `publicgrp/low`.
+
+**Command for each account**
+
+`lasallegrp` / `high`:
+
+```
 snakemake -s ../scripts/04_CpG_Me2_PE_part1_align.smk --profile 00_slurm/ \
   --configfile chunks/chunk_01.yaml \
   --config align_account=lasallegrp align_partition=high
 ```
 
+`genome-center-grp` / `high`:
+
 ```
-screen -S c03_genomecenter
 snakemake -s ../scripts/04_CpG_Me2_PE_part1_align.smk --profile 00_slurm/ \
   --configfile chunks/chunk_03.yaml \
   --config align_account=genome-center-grp align_partition=high
 ```
 
+`publicgrp` / `low` (the default, so no `--config` is needed):
+
 ```
-screen -S c05_publicgrp
 snakemake -s ../scripts/04_CpG_Me2_PE_part1_align.smk --profile 00_slurm/ \
   --configfile chunks/chunk_05.yaml
 ```
 
-(With no `--config`, alignments go to `publicgrp/low`.) Each instance first prints a line such as `CpG_Me2 Part 1: 60 lanes | trim -> publicgrp/low | align -> lasallegrp/high`; check it before leaving the session. Add `-n` first for a dry run.
+**Always dry-run first.** Add `-n` to the command. Check that the first line of output reads, for example, `CpG_Me2 Part 1: 60 lanes | trim -> publicgrp/low | align -> lasallegrp/high`, and that the job counts at the bottom show `trim` and `align` with one job per lane.
 
-A reasonable start is two chunks per account. Chunks that are waiting simply queue in SLURM until the account has room.
+**Inside each `screen` session.** A new session starts a fresh shell, so activate the environment and change to the run directory again before running the command:
+
+```
+screen -S c01_lasallegrp
+conda activate /quobyte/lasallegrp/programs/.conda/epigenerator
+cd /quobyte/lasallegrp/projects/{project}/pipeline_runs/epigenerator/{run_directory}
+snakemake -s ../scripts/04_CpG_Me2_PE_part1_align.smk --profile 00_slurm/ \
+  --configfile chunks/chunk_01.yaml \
+  --config align_account=lasallegrp align_partition=high
+```
+
+Detach with **Ctrl-A, then D**. Reattach with `screen -r c01_lasallegrp`, and list sessions with `screen -ls`. Name each session after its chunk and account, so the list shows what runs where. If you use the `SNAKEMAKE_OUTPUT_CACHE` / `XDG_CACHE_HOME` workaround from the [SLURM section](#Running-CpG_Me2-on-SLURM-Recommended), make sure it is set in each session.
+
+**Start with one chunk as a test.** Launch only the first chunk. Within a few minutes, `squeue -u $USER -o "%.10a %.9P %.30j %.8T"` should list `epigenerator-trim` jobs under `publicgrp / low`. After about an hour the first trims finish (`ls 02_trimmed/ | head`) and `epigenerator-align` jobs appear under the chosen account. Once alignments have run for 15–30 minutes with nothing in `logs/align/` or `00_std_err_logs/04_aligned_*.txt` indicating an error, launch the other chunks. A misconfiguration (genome path, environment, account name) then fails in one chunk's first jobs instead of across hundreds.
+
+**Suggested first launch: two chunks per account.**
+
+| Session name | Chunk | `--config` |
+|---|---|---|
+| `c01_lasallegrp` | `chunks/chunk_01.yaml` | `align_account=lasallegrp align_partition=high` |
+| `c02_lasallegrp` | `chunks/chunk_02.yaml` | `align_account=lasallegrp align_partition=high` |
+| `c03_genomecenter` | `chunks/chunk_03.yaml` | `align_account=genome-center-grp align_partition=high` |
+| `c04_genomecenter` | `chunks/chunk_04.yaml` | `align_account=genome-center-grp align_partition=high` |
+| `c05_publicgrp` | `chunks/chunk_05.yaml` | none (defaults to `publicgrp/low`) |
+| `c06_publicgrp` | `chunks/chunk_06.yaml` | none (defaults to `publicgrp/low`) |
+
+Chunks beyond what an account can run at once simply queue in SLURM until it has room. With two chunks running, `lasallegrp` uses up to ~14 × 70 GB, close to the lab's full 1000 GB, so let labmates know before launching.
+
+**Optional: FastQ Screen.** Screening for contamination (`fastq_screen`) is included in Part 1 but commented out. To enable it, uncomment the four `03_screened` lines in `rule all` **and** the whole `rule screen` block. It can be enabled later for chunks that are already aligned; only the screening jobs will run. Screening jobs go to `publicgrp/low` unless you add `screen_account=... screen_partition=...` to `--config`. The rule requests 100 GB, but earlier runs peaked at ~17 GB in about an hour, so lowering the request lets far more screening jobs run at once.
 
 > [!NOTE]
 > Several instances can share one run directory because their chunks produce different files. Snakemake refuses to start a second instance on a chunk that is already running (`LockException: Directory cannot be locked`). That protects the files; do **not** respond to it with `--unlock` while any instance is running. Do not run the original `02_CpG_Me2_PE` in the same run directory at the same time.
