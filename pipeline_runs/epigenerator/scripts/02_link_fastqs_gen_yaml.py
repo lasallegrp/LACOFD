@@ -9,13 +9,13 @@ file: it uses no extra disk space, and the original keeps its delivered name.
 Usage (run from the run directory, e.g. pipeline_runs/epigenerator/EPI_AZ_01):
 
   # Dry run (default): prints the plan and a YAML preview, changes nothing
-  python3 ../scripts/02_link_fastqs_gen_yaml.py \\
-      --csv 2026_LACOFD_WGBS_cellfree_Logan_transfers.csv \\
+  python3 ../scripts/02_link_fastqs_gen_yaml.py \
+      --csv 2026_LACOFD_WGBS_cellfree_Logan_transfers.csv \
       --target 01_raw_sequences
 
   # Apply
-  python3 ../scripts/02_link_fastqs_gen_yaml.py \\
-      --csv 2026_LACOFD_WGBS_cellfree_Logan_transfers.csv \\
+  python3 ../scripts/02_link_fastqs_gen_yaml.py \
+      --csv 2026_LACOFD_WGBS_cellfree_Logan_transfers.csv \
       --target 01_raw_sequences --apply
 
 Pipeline:

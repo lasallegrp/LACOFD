@@ -18,6 +18,7 @@
 	* [Option B: `FASTQ_Me2` (Legacy / SLIMS Downloads)](#option-b-fastq_me2-legacy--slims-downloads)
 	* [`task_samples.yaml` Format](#task_samplesyaml-format)
 * [2. `CpG_Me2`](#2-cpg_me2)
+	* [Two-Part Run Across SLURM Accounts (LaSalle Lab, Large Batches)](#two-part-run-across-slurm-accounts-lasalle-lab-large-batches)
 	* [Running `CpG_Me2` Locally](#running-cpg_me2-Locally)
 	* [Running `CpG_Me2` on SLURM (Recommended)](#Running-CpG_Me2-on-SLURM-Recommended)
 * [3. `DMRichR`](#3-dmrichr)
@@ -38,7 +39,8 @@ The original [CpG_Me](https://github.com/ben-laufer/CpG_Me), written by Dr. Ben 
     * Multi-threading of jobs can be handled locally or on SLURM
     * Jobs remove corrupted intermediate files if they fail
     * Snakemake's "memory" prevents re-running of samples and files that have already been generated
-* Two linking scripts in the shared `scripts/` folder (`pipeline_runs/epigenerator/scripts/` for LaSalle Lab) are now the recommended way to prepare raw sequences, especially for data spread across multiple lanes, runs, or flow cells (see [Option A](#option-a-linking-scripts-recommended)). They give every FASTQ a unique name in the run by creating hard links, so the raw data is never renamed or modified. `FASTQ_Me2` is kept for downloading data from SLIMS.
+* Two linking scripts in the shared `scripts/` folder (`pipeline_runs/epigenerator/scripts/` for LaSalle Lab) are now the recommended way to prepare raw sequences, especially for data spread across multiple lanes, runs, or flow cells (see [Option A](#option-a-linking-scripts-recommended)). They give every FASTQ a unique name in the run by creating hard links, so the raw data is never renamed or modified.
+* For large batches, `CpG_Me2` can be run in two parts (trim + align, then merge onward) with the alignments spread across several SLURM accounts in parallel, and a completeness check that stops any sample from being merged from too few lanes (see [Two-Part Run](#two-part-run-across-slurm-accounts-lasalle-lab-large-batches)). `FASTQ_Me2` is kept for downloading data from SLIMS.
 
 ## Project Set-Up
 
@@ -63,14 +65,19 @@ In LaSalle Lab projects, each pipeline run is its own epigenerator clone inside 
 ```
 {lab_project}/pipeline_runs/epigenerator/
 ├── README.md                  # this file, shared by all runs
-├── scripts/                   # linking scripts, shared by all runs
-│   ├── 01_create_transfers_list_csv.py
-│   └── 02_link_fastqs_gen_yaml.py
+├── scripts/                   # shared by all runs
+│   ├── 01_create_transfers_list_csv.py     # Section 1, Step 1
+│   ├── 02_link_fastqs_gen_yaml.py          # Section 1, Step 2
+│   ├── 03_split_task_samples_chunks.py     # Section 2, two-part run
+│   ├── 04_CpG_Me2_PE_part1_align.smk       # Section 2, Part 1: trim + align
+│   ├── 05_chunk_status.py                  # Section 2, progress per chunk
+│   └── 06_CpG_Me2_PE_part2_merge.smk       # Section 2, Part 2: merge -> cytosine reports
 ├── EPI_AZ_01/                 # one epigenerator clone per run ("run directory")
 │   ├── 01_raw_sequences/
 │   │   ├── 2026_LACOFD_WGBS_cellfree_Logan -> /quobyte/lasallegrp/data/...   # soft link (Step 0)
 │   │   └── *_1.fq.gz, *_2.fq.gz                                             # hard links (Step 2)
-│   └── task_samples.yaml
+│   ├── task_samples.yaml
+│   └── chunks/                # sample chunks for the two-part run
 ├── EPI_AZ_PILOT_01/
 ├── EPI_LA_01/
 └── EPI_LA_02/
@@ -341,7 +348,113 @@ The samples list can go on for as many as you need, but they should include the 
 
 Note that **02_CpG_Me2_PE is for use with paired-end data and 02_CpG_Me2_SE is for use with single-end data**. Please substitute the script names as needed in the below commands. I have gone with the deafult of paired-end data in this tutorial since paired-end data is more commonly used than single-end data in our lab.
 
-There are two ways that you can run `CpG_Me2`. 
+There are two ways that you can run the single-file `CpG_Me2` described below (for large LaSalle Lab batches, see the [two-part run](#two-part-run-across-slurm-accounts-lasalle-lab-large-batches) instead). 
+
+### Two-Part Run Across SLURM Accounts (LaSalle Lab, Large Batches)
+
+For large batches (e.g. 133 samples × 6 lanes = 798 alignments), `CpG_Me2` can be run in two parts from the shared `scripts/` folder. The tools and their settings are the same as in `02_CpG_Me2_PE`; only the orchestration differs.
+
+* **Part 1** (`04_CpG_Me2_PE_part1_align.smk`): trimming and alignment, one job per lane per sample. The samples are split into **chunks of ~10 samples**, and each chunk runs as its own Snakemake instance on a SLURM account of your choice. All instances write into the same `02_trimmed/` and `04_aligned/`.
+* **Part 2** (`06_CpG_Me2_PE_part2_merge.smk`): merge lanes → name sort → deduplicate → extract methylation → cytosine reports → MultiQC. It runs once, after Part 1, in the same run directory.
+
+Why two parts:
+
+* **Parallelism across accounts.** Each account has its own limit on memory and CPUs, so running chunks on several accounts at once multiplies throughput.
+* **Chunks balance the load automatically.** Accounts run at different speeds (`publicgrp/low` has no fixed limit but its jobs can be requeued). Rather than guessing a fixed split, give each account a chunk or two and hand the next unstarted chunk to whichever account finishes first.
+* **No sample is merged from too few lanes.** Part 2 takes each sample's lanes from `task_samples.yaml`, not from whichever BAMs happen to exist. It only starts when every lane of every sample has finished; a lane counts as finished when its BAM, its Bismark report, and its Snakemake benchmark file (written only after a successful job) all exist.
+
+#### Accounts and Capacity
+
+Alignment is the bottleneck. From 1,903 earlier lane alignments, an alignment takes a median of ~10 h (max ~25 h) and peaks at ~60 GB of RAM (max 79 GB). Part 1 therefore asks for **70 GB / 36 h** and automatically retries a failed alignment with **100 GB / 72 h** (the profile's `restart-times: 1`). Shorter requests start sooner. Trimming asks for 2 GB (peak 0.34 GB) and always runs on `publicgrp/low`.
+
+| Account / partition | Limit | Alignments at once |
+|---|---|---|
+| `lasallegrp` / `high` | 1000 GB shared by the lab (agreed limit for alignments) | ~14 at 70 GB |
+| `genome-center-grp` / `high` | 1024 GB and 64 CPUs per user | ~10 (6 CPUs each) |
+| `publicgrp` / `low` | jobs under 3 days; can be requeued | varies with cluster load |
+
+Limits change over time; check with the cluster admins if in doubt.
+
+#### One-Time Setup: Unique SLURM Log Names
+
+Each Snakemake instance numbers its jobs from 1, so with several instances running, `--output=logs/{rule}/{jobid}.out` makes them overwrite each other's SLURM logs. In `00_slurm/config.yaml`, use SLURM's own job ID (`%j`) instead:
+
+```
+    --output=logs/{rule}/{rule}_%j.out
+    --error=logs/{rule}/{rule}_%j.err
+```
+
+The per-sample tool logs in `00_std_err_logs/` are unaffected either way.
+
+#### Split the Samples into Chunks
+
+From the run directory, after `task_samples.yaml` exists (Section 1):
+
+```
+python3 ../scripts/03_split_task_samples_chunks.py --chunk-size 10
+```
+
+This writes `chunks/chunk_01.yaml`, `chunks/chunk_02.yaml`, ... (all lanes of a sample stay in the same chunk) and `chunks/chunks.tsv` listing which samples are in each chunk. It warns if some samples have a different number of lanes than the rest, and it never overwrites existing chunk files (running instances read them) unless you add `--overwrite`.
+
+#### Part 1: Run Chunks on Different Accounts
+
+Start one `screen` session per chunk, named after the chunk and account, so `screen -ls` shows what runs where. In each session, activate the environment, go to the run directory, and start that chunk. The trimming account is always `publicgrp/low`; the alignment account is set with `--config`:
+
+```
+screen -S c01_lasallegrp
+snakemake -s ../scripts/04_CpG_Me2_PE_part1_align.smk --profile 00_slurm/ \
+  --configfile chunks/chunk_01.yaml \
+  --config align_account=lasallegrp align_partition=high
+```
+
+```
+screen -S c03_genomecenter
+snakemake -s ../scripts/04_CpG_Me2_PE_part1_align.smk --profile 00_slurm/ \
+  --configfile chunks/chunk_03.yaml \
+  --config align_account=genome-center-grp align_partition=high
+```
+
+```
+screen -S c05_publicgrp
+snakemake -s ../scripts/04_CpG_Me2_PE_part1_align.smk --profile 00_slurm/ \
+  --configfile chunks/chunk_05.yaml
+```
+
+(With no `--config`, alignments go to `publicgrp/low`.) Each instance first prints a line such as `CpG_Me2 Part 1: 60 lanes | trim -> publicgrp/low | align -> lasallegrp/high`; check it before leaving the session. Add `-n` first for a dry run.
+
+A reasonable start is two chunks per account. Chunks that are waiting simply queue in SLURM until the account has room.
+
+> [!NOTE]
+> Several instances can share one run directory because their chunks produce different files. Snakemake refuses to start a second instance on a chunk that is already running (`LockException: Directory cannot be locked`). That protects the files; do **not** respond to it with `--unlock` while any instance is running. Do not run the original `02_CpG_Me2_PE` in the same run directory at the same time.
+
+#### Monitor Progress and Hand Out the Next Chunk
+
+```
+python3 ../scripts/05_chunk_status.py
+squeue -u $USER -o "%.10a %.9P %.30j %.8T"     # jobs per account
+```
+
+`05_chunk_status.py` shows, per chunk, how many lanes are trimmed and aligned, marks finished chunks with `DONE - account free for next chunk`, and reports the median and maximum alignment time so far. When a chunk is done, start the next unstarted chunk (see `chunks/chunks.tsv`) on that account, in a new `screen` session.
+
+If an instance stops with errors (e.g. a job failed twice), fix the cause and rerun the same command; finished lanes are not redone.
+
+#### Part 2: Merge Through Cytosine Reports
+
+When all chunks are done, run Part 2 once from the run directory:
+
+```
+snakemake -s ../scripts/06_CpG_Me2_PE_part2_merge.smk --profile 00_slurm/
+```
+
+It reads the full `task_samples.yaml`, prints `CpG_Me2 Part 2: all N samples complete`, and runs merge → cytosine reports and MultiQC. If any lane is unfinished, it stops and lists the affected samples instead of merging them from too few lanes.
+
+To get results for finished samples while other chunks are still aligning:
+
+```
+snakemake -s ../scripts/06_CpG_Me2_PE_part2_merge.smk --profile 00_slurm/ --config partial=True
+```
+
+This processes only samples whose lanes are **all** finished and names the samples it skipped. Run Part 2 again without `partial=True` once Part 1 is complete; samples already processed are not redone, and MultiQC is regenerated with all samples. Part 2 jobs run on `publicgrp/low` by default (`--config part2_account=... part2_partition=...` to change).
 
 ### Running `CpG_Me2` Locally
 

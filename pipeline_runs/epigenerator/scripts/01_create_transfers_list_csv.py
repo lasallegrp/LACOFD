@@ -19,10 +19,10 @@ that final name.
 
 Usage (run from the run directory, e.g. pipeline_runs/epigenerator/EPI_AZ_01; the shared
 scripts live one level up in pipeline_runs/epigenerator/scripts/):
-python3 ../scripts/01_create_transfers_list_csv.py \\
-  --indir 01_raw_sequences/2026_LACOFD_WGBS_cellfree_Logan \\
+python3 ../scripts/01_create_transfers_list_csv.py \
+  --indir 01_raw_sequences/2026_LACOFD_WGBS_cellfree_Logan \
   --output 2026_LACOFD_WGBS_cellfree_Logan_transfers.csv
-
+  
 CSV columns:
   Sample_ID, Sample_Num, Lane, Read_Dir   parsed from the Illumina name
   Parent_Dir                              folder name(s) used to make the final name unique
