@@ -31,8 +31,8 @@ from snakemake.exceptions import WorkflowError
 configfile: "task_samples.yaml"
 
 PARTIAL = str(config.get("partial", False)).lower() in ("true", "1", "yes")
-P2_ACCOUNT = str(config.get("part2_account", "publicgrp"))
-P2_PARTITION = str(config.get("part2_partition", "low"))
+P2_ACCOUNT = str(config.get("part2_account", "lasallegrp"))
+P2_PARTITION = str(config.get("part2_partition", "high"))
 
 wildcard_constraints:
     sample_id = "[^_/]+"
